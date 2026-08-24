@@ -89,11 +89,18 @@
         </div>
       </section>
       <section class="visual-picker">
-        <div class="library-title"><strong>这款饮品的产品贴纸</strong><small>正面纯色背景效果最佳</small></div>
-        <div id="builtin-product-preview" class="builtin-product-preview" hidden></div>
-        <label class="photo-upload">＋ 上传正面产品图<input id="drink-photo" type="file" accept="image/*" capture="environment"></label>
-        <span id="cutout-status" class="cutout-status"></span>
-        <img id="photo-preview" alt="饮品照片预览" hidden>
+        <div class="library-title"><strong>这款饮品的产品贴纸</strong><small>可选系统图片或自己上传</small></div>
+        <div class="visual-source-tabs" role="tablist">
+          <button type="button" class="active" data-visual-source="builtin">系统自带</button>
+          <button type="button" data-visual-source="upload">自己上传</button>
+        </div>
+        <div id="builtin-product-gallery" class="product-gallery"></div>
+        <div id="upload-product-panel" hidden>
+          <p class="upload-tip">拍摄或选择正面产品图，纯色背景的自动抠图效果更好。</p>
+          <label class="photo-upload">＋ 拍照或从相册选择<input id="drink-photo" type="file" accept="image/*" capture="environment"></label>
+          <span id="cutout-status" class="cutout-status"></span>
+          <img id="photo-preview" alt="饮品照片预览" hidden>
+        </div>
       </section>
       <div class="form-card">
         <label><span>品牌</span><input id="drink-brand" maxlength="24" placeholder="例如：霸王茶姬"></label>
