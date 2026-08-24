@@ -15,34 +15,108 @@
 <body>
   <main class="app-shell">
     <section class="screen active" id="today-screen" aria-labelledby="today-title">
-      <header class="topbar"><div><p id="today-date" class="eyebrow"></p><h1 id="today-title">今天喝点什么？</h1></div><div class="brand-mark" aria-hidden="true">☕</div></header>
+      <header class="topbar">
+        <div><p id="today-date" class="eyebrow"></p><h1 id="today-title">今天喝点什么？</h1></div>
+        <div class="brand-mark" aria-hidden="true">☕</div>
+      </header>
+
       <article class="summary-card">
         <div class="summary-head"><strong>今日饮用</strong><span id="cup-count">0 杯</span></div>
-        <div class="metrics"><div><p><b id="total-volume">0</b> <small>ml</small></p><span>总饮用量</span></div><i></i><div><p><b id="total-caffeine">0</b> <small>mg</small></p><span>咖啡因</span></div></div>
-        <div class="progress"><span id="water-progress"></span></div><p id="goal-copy" class="goal-copy">距离 2000 ml 目标还有 2000 ml</p>
+        <div class="metrics">
+          <div><p><b id="total-volume">0</b> <small>ml</small></p><span>总饮用量</span></div>
+          <i></i>
+          <div><p><b id="total-caffeine">0</b> <small>mg</small></p><span>咖啡因</span></div>
+        </div>
+        <div class="progress"><span id="water-progress"></span></div>
+        <p id="goal-copy" class="goal-copy">距离 2000 ml 目标还有 2000 ml</p>
       </article>
-      <section class="section-block"><div class="section-heading"><h2>快速记录</h2><button class="text-button" id="custom-add">自定义</button></div><div class="quick-grid" id="quick-grid"></div></section>
-      <section class="section-block"><div class="section-heading"><h2>今天的记录</h2></div><div id="today-list" class="entry-list"></div></section>
+
+      <section class="section-block">
+        <div class="section-heading"><h2>快速记录</h2><button class="text-button" id="custom-add">自定义</button></div>
+        <div class="quick-grid" id="quick-grid"></div>
+      </section>
+
+      <section class="section-block">
+        <div class="section-heading"><h2>今天的记录</h2></div>
+        <div id="today-list" class="entry-list"></div>
+      </section>
     </section>
-    <section class="screen" id="history-screen" aria-labelledby="history-title"><header class="page-header"><p class="eyebrow">你的每一杯</p><h1 id="history-title">历史记录</h1></header><label class="search"><span>⌕</span><input id="history-search" type="search" placeholder="搜索饮品" autocomplete="off"></label><div id="history-list" class="history-list"></div></section>
+
+    <section class="screen" id="history-screen" aria-labelledby="history-title">
+      <header class="page-header"><p class="eyebrow">你的每一杯</p><h1 id="history-title">历史记录</h1></header>
+      <section class="calendar-card">
+        <div class="calendar-head"><button id="prev-month" aria-label="上个月">‹</button><strong id="calendar-title"></strong><button id="next-month" aria-label="下个月">›</button></div>
+        <div class="weekday-row"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+        <div id="calendar-grid" class="calendar-grid"></div>
+        <button id="clear-date-filter" class="calendar-clear" hidden>查看全部记录</button>
+      </section>
+      <label class="search"><span>⌕</span><input id="history-search" type="search" placeholder="搜索饮品" autocomplete="off"></label>
+      <div id="history-list" class="history-list"></div>
+    </section>
+
     <section class="screen" id="insights-screen" aria-labelledby="insights-title">
       <header class="page-header"><p class="eyebrow">最近 7 天</p><h1 id="insights-title">饮用趋势</h1></header>
-      <article class="chart-card"><div class="section-heading"><h2>饮用量</h2><span id="week-total" class="muted"></span></div><div id="week-chart" class="week-chart"></div></article>
-      <div class="mini-cards"><article><span class="mini-icon blue">◆</span><small>平均每天</small><p><b id="daily-average">0</b> ml</p></article><article><span class="mini-icon orange">ϟ</span><small>咖啡因总量</small><p><b id="week-caffeine">0</b> mg</p></article></div>
+      <article class="chart-card">
+        <div class="section-heading"><h2>饮用量</h2><span id="week-total" class="muted"></span></div>
+        <div id="week-chart" class="week-chart"></div>
+      </article>
+      <div class="mini-cards">
+        <article><span class="mini-icon blue">◆</span><small>平均每天</small><p><b id="daily-average">0</b> ml</p></article>
+        <article><span class="mini-icon orange">ϟ</span><small>咖啡因总量</small><p><b id="week-caffeine">0</b> mg</p></article>
+      </div>
       <article class="category-card"><h2>饮品构成</h2><div id="category-list"></div></article>
     </section>
   </main>
+
   <nav class="tabbar" aria-label="主导航">
-    <button class="tab active" data-screen="today"><span>⌂</span><small>今天</small></button><button class="tab" data-screen="history"><span>◷</span><small>历史</small></button><button class="add-button" id="main-add" aria-label="记录一杯">＋</button><button class="tab" data-screen="insights"><span>▥</span><small>趋势</small></button><button class="tab" id="export-button"><span>⇧</span><small>备份</small></button>
+    <button class="tab active" data-screen="today"><span>⌂</span><small>今天</small></button>
+    <button class="tab" data-screen="history"><span>◷</span><small>历史</small></button>
+    <button class="add-button" id="main-add" aria-label="记录一杯">＋</button>
+    <button class="tab" data-screen="insights"><span>▥</span><small>趋势</small></button>
+    <button class="tab" id="export-button"><span>⇧</span><small>备份</small></button>
   </nav>
-  <dialog id="drink-dialog"><form id="drink-form" method="dialog">
-    <div class="dialog-grabber"></div><header><button type="button" class="dialog-cancel">取消</button><h2>记录一杯</h2><button type="submit" class="dialog-save">保存</button></header><div class="preset-strip" id="preset-strip"></div>
-    <section class="brand-library"><div class="library-title"><strong>品牌饮品库</strong><small>容量与咖啡因是常见规格估算</small></div><div class="brand-pickers"><label><span>品牌</span><select id="brand-select"><option value="">选择品牌</option></select></label><label><span>饮品</span><select id="brand-drink-select" disabled><option value="">选择饮品</option></select></label></div></section>
-    <div class="form-card">
-      <label><span>名称</span><input id="drink-name" required maxlength="30" placeholder="例如：冰美式"></label><label><span>类型</span><select id="drink-category"></select></label><label><span>容量</span><span class="unit-input"><input id="drink-volume" type="number" inputmode="numeric" min="0" max="10000" required><em>ml</em></span></label><label><span>咖啡因</span><span class="unit-input"><input id="drink-caffeine" type="number" inputmode="numeric" min="0" max="2000"><em>mg</em></span></label><label><span>时间</span><input id="drink-time" type="datetime-local" required></label><label><span>备注</span><input id="drink-note" maxlength="60" placeholder="可选"></label>
+
+  <dialog id="drink-dialog">
+    <form id="drink-form" method="dialog">
+      <div class="dialog-grabber"></div>
+      <header><button type="button" class="dialog-cancel">取消</button><h2>记录一杯</h2><button type="submit" class="dialog-save">保存</button></header>
+      <div class="preset-strip" id="preset-strip"></div>
+      <section class="brand-library">
+        <div class="library-title"><strong>品牌饮品库</strong><small>容量与咖啡因是常见规格估算</small></div>
+        <div class="brand-pickers">
+          <label><span>品牌</span><select id="brand-select"><option value="">选择品牌</option></select></label>
+          <label><span>饮品</span><select id="brand-drink-select" disabled><option value="">选择饮品</option></select></label>
+        </div>
+      </section>
+      <section class="visual-picker">
+        <div class="library-title"><strong>饮品贴纸 / 照片</strong><small>仅保存在当前设备</small></div>
+        <div class="sticker-row" id="sticker-row"></div>
+        <label class="photo-upload">＋ 上传照片<input id="drink-photo" type="file" accept="image/*" capture="environment"></label>
+        <img id="photo-preview" alt="饮品照片预览" hidden>
+      </section>
+      <div class="form-card">
+        <label><span>名称</span><input id="drink-name" required maxlength="30" placeholder="例如：冰美式"></label>
+        <label><span>类型</span><select id="drink-category"></select></label>
+        <label><span>容量</span><span class="unit-input"><input id="drink-volume" type="number" inputmode="numeric" min="0" max="10000" required><em>ml</em></span></label>
+        <label><span>咖啡因</span><span class="unit-input"><input id="drink-caffeine" type="number" inputmode="numeric" min="0" max="2000"><em>mg</em></span></label>
+        <label><span>时间</span><input id="drink-time" type="datetime-local" required></label>
+        <label><span>备注</span><input id="drink-note" maxlength="60" placeholder="可选"></label>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="backup-dialog" class="small-dialog">
+    <div class="dialog-grabber"></div>
+    <header><button class="dialog-cancel backup-close">关闭</button><h2>数据备份</h2><span></span></header>
+    <div class="backup-content">
+      <p>导出备份文件，换手机或清除浏览器数据前可以保存一份。</p>
+      <button id="download-backup" class="primary-action">导出 JSON 备份</button>
+      <label class="import-label">导入已有备份<input id="import-backup" type="file" accept="application/json"></label>
     </div>
-  </form></dialog>
-  <dialog id="backup-dialog" class="small-dialog"><div class="dialog-grabber"></div><header><button class="dialog-cancel backup-close">关闭</button><h2>数据备份</h2><span></span></header><div class="backup-content"><p>导出备份文件，换手机或清除浏览器数据前可以保存一份。</p><button id="download-backup" class="primary-action">导出 JSON 备份</button><label class="import-label">导入已有备份<input id="import-backup" type="file" accept="application/json"></label></div></dialog>
-  <div id="toast" role="status" aria-live="polite"></div><script src="app.js"></script>
+  </dialog>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
 </body>
 </html>
+
