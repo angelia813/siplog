@@ -50,6 +50,11 @@
         <div id="calendar-grid" class="calendar-grid"></div>
         <button id="clear-date-filter" class="calendar-clear" hidden>查看全部记录</button>
       </section>
+      <section class="month-stats" aria-label="本月统计">
+        <article><small>本月</small><strong><b id="month-cups">0</b> 杯</strong></article>
+        <article><small>喝过品牌</small><strong><b id="month-brands">0</b> 个</strong></article>
+        <article class="month-favorite"><small>本月最爱</small><strong id="month-favorite">暂无</strong></article>
+      </section>
       <label class="search"><span>⌕</span><input id="history-search" type="search" placeholder="搜索饮品" autocomplete="off"></label>
       <div id="history-list" class="history-list"></div>
     </section>
@@ -97,7 +102,7 @@
         <div id="builtin-product-gallery" class="product-gallery"></div>
         <div id="upload-product-panel" hidden>
           <p class="upload-tip">拍摄或选择正面产品图，纯色背景的自动抠图效果更好。</p>
-          <label class="photo-upload">＋ 拍照或从相册选择<input id="drink-photo" type="file" accept="image/*" capture="environment"></label>
+          <label class="photo-upload">＋ 从照片图库选择<input id="drink-photo" type="file" accept="image/*"></label>
           <span id="cutout-status" class="cutout-status"></span>
           <img id="photo-preview" alt="饮品照片预览" hidden>
         </div>
