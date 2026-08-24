@@ -89,12 +89,14 @@
         </div>
       </section>
       <section class="visual-picker">
-        <div class="library-title"><strong>饮品贴纸 / 照片</strong><small>仅保存在当前设备</small></div>
-        <div class="sticker-row" id="sticker-row"></div>
-        <label class="photo-upload">＋ 上传照片<input id="drink-photo" type="file" accept="image/*" capture="environment"></label>
+        <div class="library-title"><strong>这款饮品的产品贴纸</strong><small>正面纯色背景效果最佳</small></div>
+        <div id="builtin-product-preview" class="builtin-product-preview" hidden></div>
+        <label class="photo-upload">＋ 上传正面产品图<input id="drink-photo" type="file" accept="image/*" capture="environment"></label>
+        <span id="cutout-status" class="cutout-status"></span>
         <img id="photo-preview" alt="饮品照片预览" hidden>
       </section>
       <div class="form-card">
+        <label><span>品牌</span><input id="drink-brand" maxlength="24" placeholder="例如：霸王茶姬"></label>
         <label><span>名称</span><input id="drink-name" required maxlength="30" placeholder="例如：冰美式"></label>
         <label><span>类型</span><select id="drink-category"></select></label>
         <label><span>容量</span><span class="unit-input"><input id="drink-volume" type="number" inputmode="numeric" min="0" max="10000" required><em>ml</em></span></label>
@@ -102,6 +104,7 @@
         <label><span>时间</span><input id="drink-time" type="datetime-local" required></label>
         <label><span>备注</span><input id="drink-note" maxlength="60" placeholder="可选"></label>
       </div>
+      <button type="button" id="save-to-library" class="save-library">＋ 保存到“我的饮品库”</button>
     </form>
   </dialog>
 
