@@ -33,6 +33,7 @@ const $=s=>document.querySelector(s);const $$=s=>[...document.querySelectorAll(s
 let entries=loadEntries();
 let calendarMonth=new Date(),selectedDate=null,photoData='',productVisual='',editingId=null;
 let customProducts=loadCustomProducts();
+let aiCutoutRuntime=null;
 
 function loadEntries(){try{return JSON.parse(localStorage.getItem('siplog.entries')||'[]')}catch{return []}}
 function persist(){localStorage.setItem('siplog.entries',JSON.stringify(entries));renderAll()}
@@ -85,7 +86,35 @@ function catalog(){const groups={};customProducts.forEach(p=>(groups[p.brand]??=
 function refreshBrandSelect(){const value=$('#brand-select')?.value||'';$('#brand-select').innerHTML='<option value="">选择品牌</option>'+catalog().map((b,i)=>`<option value="${i}">${b.brand}</option>`).join('');if(value&&catalog()[+value])$('#brand-select').value=value}
 function updateBrandDrinks(){const index=$('#brand-select').value,select=$('#brand-drink-select');if(index===''){select.disabled=true;select.innerHTML='<option value="">选择饮品</option>';return}const brand=catalog()[+index];select.disabled=false;select.innerHTML='<option value="">选择饮品</option>'+brand.drinks.map((d,i)=>`<option value="${i}">${d[0]}</option>`).join('')}
 function applyBrandDrink(){const brandIndex=$('#brand-select').value,drinkIndex=$('#brand-drink-select').value;if(brandIndex===''||drinkIndex==='')return;const brand=catalog()[+brandIndex],drink=brand.drinks[+drinkIndex],category=drink[3]||brand.type;$('#drink-brand').value=brand.rawBrand||brand.brand.replace(/^我的 · /,'');$('#drink-name').value=drink[0];$('#drink-category').value=category;$('#drink-volume').value=drink[1];$('#drink-caffeine').value=drink[2];photoData='';productVisual=drink[4]||'';const preview=$('#photo-preview');preview.hidden=true;if(BUILTIN_PRODUCTS.some(p=>p.id===productVisual)){selectBuiltinProduct(productVisual)}else if(productVisual.startsWith('custom:')){const item=customProducts.find(p=>p.id===productVisual.slice(7));if(item?.photo){photoData=item.photo;preview.src=photoData;preview.hidden=false;showVisualSource('upload')}}else{showVisualSource('builtin');renderProductGallery()}}
-async function handlePhoto(event){const file=event.target.files[0];if(!file)return;productVisual='';showVisualSource('upload');renderProductGallery();$('#cutout-status').textContent='正在本机自动抠图…';await new Promise(requestAnimationFrame);const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{try{photoData=cutoutProduct(img);$('#cutout-status').textContent='已自动去除背景，可直接保存';const preview=$('#photo-preview');preview.src=photoData;preview.hidden=false}catch{$('#cutout-status').textContent='自动抠图失败，请换一张纯色背景照片'}};img.src=reader.result};reader.readAsDataURL(file)}
+async function handlePhoto(event){
+  const file=event.target.files[0];if(!file)return;
+  productVisual='';showVisualSource('upload');renderProductGallery();
+  const status=$('#cutout-status'),preview=$('#photo-preview');
+  status.textContent='正在读取本地照片…';preview.hidden=true;
+  try{
+    const source=await readAndResizePhoto(file,900);
+    status.textContent=aiCutoutRuntime?'正在智能抠图…':'首次使用：正在下载智能抠图模型…';
+    photoData=await smartCutout(source,message=>status.textContent=message);
+    preview.src=photoData;preview.hidden=false;status.textContent='智能抠图完成，照片仍只保存在本机';
+  }catch(error){
+    try{photoData=await readAndResizePhoto(file,720);preview.src=photoData;preview.hidden=false;status.textContent='智能抠图暂时不可用，已保留原图，可正常保存'}
+    catch{status.textContent='照片读取失败，请重新选择'}
+    console.warn('smart cutout failed',error);
+  }
+}
+function readAndResizePhoto(file,maxSize=900){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=reject;reader.onload=()=>{const img=new Image();img.onerror=reject;img.onload=()=>{const scale=Math.min(1,maxSize/Math.max(img.width,img.height)),canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/jpeg',.86))};img.src=reader.result};reader.readAsDataURL(file)})}
+async function smartCutout(source,onStatus=()=>{}){
+  if(!aiCutoutRuntime){
+    onStatus('首次使用：正在下载智能模型（可能需要一些时间）…');
+    const {AutoModel,AutoProcessor,RawImage}=await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0');
+    const model=await AutoModel.from_pretrained('briaai/RMBG-1.4',{config:{model_type:'custom'},dtype:'q8'});
+    const processor=await AutoProcessor.from_pretrained('briaai/RMBG-1.4',{config:{do_normalize:true,do_pad:false,do_rescale:true,do_resize:true,image_mean:[.5,.5,.5],feature_extractor_type:'ImageFeatureExtractor',image_std:[1,1,1],resample:2,rescale_factor:1/255,size:{width:512,height:512}}});
+    aiCutoutRuntime={model,processor,RawImage};
+  }
+  onStatus('正在识别杯子、杯盖和吸管边缘…');
+  const {model,processor,RawImage}=aiCutoutRuntime,image=await RawImage.fromURL(source),{pixel_values}=await processor(image),result=await model({input:pixel_values}),tensor=result.output||Object.values(result)[0],mask=await RawImage.fromTensor(tensor[0].mul(255).to('uint8')).resize(image.width,image.height);
+  image.putAlpha(mask);const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;canvas.getContext('2d').drawImage(image.toCanvas(),0,0);return canvas.toDataURL('image/webp',.86);
+}
 function cutoutProduct(img){const size=360,canvas=document.createElement('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});canvas.width=canvas.height=size;ctx.fillStyle='#fff';ctx.fillRect(0,0,size,size);const scale=Math.min((size-20)/img.width,(size-20)/img.height),w=img.width*scale,h=img.height*scale;ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);const image=ctx.getImageData(0,0,size,size),d=image.data,corners=[[0,0],[size-1,0],[0,size-1],[size-1,size-1]],bg=[0,0,0];corners.forEach(([x,y])=>{const i=(y*size+x)*4;bg[0]+=d[i];bg[1]+=d[i+1];bg[2]+=d[i+2]});bg=bg.map(v=>v/4);const seen=new Uint8Array(size*size),queue=new Int32Array(size*size*4+size*4);let head=0,tail=0;for(let x=0;x<size;x++){queue[tail++]=x;queue[tail++]=(size-1)*size+x}for(let y=1;y<size-1;y++){queue[tail++]=y*size;queue[tail++]=y*size+size-1}const dist=p=>Math.hypot(d[p*4]-bg[0],d[p*4+1]-bg[1],d[p*4+2]-bg[2]);while(head<tail){const p=queue[head++];if(seen[p]||dist(p)>72)continue;seen[p]=1;d[p*4+3]=0;const x=p%size,y=Math.floor(p/size);if(x)queue[tail++]=p-1;if(x<size-1)queue[tail++]=p+1;if(y)queue[tail++]=p-size;if(y<size-1)queue[tail++]=p+size}ctx.putImageData(image,0,0);return canvas.toDataURL('image/png')}
 function saveToLibrary(){const brand=$('#drink-brand').value.trim(),name=$('#drink-name').value.trim();if(!brand||!name){toast('请先填写品牌和饮品名称');return}const item={id:crypto.randomUUID(),brand,name,category:$('#drink-category').value,volume:+$('#drink-volume').value||0,caffeine:+$('#drink-caffeine').value||0,photo:photoData};customProducts.push(item);try{localStorage.setItem('siplog.customProducts',JSON.stringify(customProducts));refreshBrandSelect();toast('已加入我的饮品库')}catch{customProducts.pop();toast('设备存储空间不足，请导出备份')}}
 function changeMonth(delta){calendarMonth=new Date(calendarMonth.getFullYear(),calendarMonth.getMonth()+delta,1);selectedDate=null;renderHistory()}
@@ -103,5 +132,6 @@ function renderAll(){renderToday();renderHistory();renderInsights()}
 function exportBackup(){const blob=new Blob([JSON.stringify({app:'SipLog',version:2,exportedAt:new Date().toISOString(),entries,customProducts},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`饮刻备份-${localDay(new Date()).replaceAll('-','')}.json`;a.click();URL.revokeObjectURL(a.href);toast('备份已导出')}
 async function importBackup(event){const file=event.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data.entries))throw Error();if(confirm(`将导入 ${data.entries.length} 条记录，是否继续？`)){entries=data.entries;customProducts=Array.isArray(data.customProducts)?data.customProducts:customProducts;localStorage.setItem('siplog.customProducts',JSON.stringify(customProducts));refreshBrandSelect();persist();$('#backup-dialog').close();toast('备份导入成功')}}catch{alert('无法读取这个备份文件')}event.target.value=''}
 init();
+
 
 
