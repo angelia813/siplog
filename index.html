@@ -87,11 +87,13 @@
       <header><button type="button" class="dialog-cancel">取消</button><h2>记录一杯</h2><button type="submit" class="dialog-save">保存</button></header>
       <div class="preset-strip" id="preset-strip"></div>
       <section class="brand-library">
-        <div class="library-title"><strong>品牌饮品库</strong><small>容量与咖啡因是常见规格估算</small></div>
+        <div class="library-title"><strong>品牌饮品库</strong><button type="button" id="manage-library" class="manage-library-button">管理我的饮品库</button></div>
+        <small class="catalog-note">容量与咖啡因是常见规格估算</small>
         <div class="brand-pickers">
           <label><span>品牌</span><select id="brand-select"><option value="">选择品牌</option></select></label>
           <label><span>饮品</span><select id="brand-drink-select" disabled><option value="">选择饮品</option></select></label>
         </div>
+        <div id="brand-logo-preview" class="brand-logo-preview" hidden><span></span><small></small></div>
       </section>
       <section class="visual-picker">
         <div class="library-title"><strong>这款饮品的产品贴纸</strong><small>可选系统图片或自己上传</small></div>
@@ -128,6 +130,13 @@
       <button id="download-backup" class="primary-action">导出 JSON 备份</button>
       <label class="import-label">导入已有备份<input id="import-backup" type="file" accept="application/json"></label>
     </div>
+  </dialog>
+
+  <dialog id="library-dialog" class="small-dialog">
+    <div class="dialog-grabber"></div>
+    <header><button type="button" id="library-close" class="dialog-cancel">关闭</button><h2>我的饮品库</h2><span></span></header>
+    <p class="library-help">这里只管理你自己保存的饮品；系统品牌库不会被修改。</p>
+    <div id="library-manage-list" class="library-manage-list"></div>
   </dialog>
 
   <div id="toast" role="status" aria-live="polite"></div>
